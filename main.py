@@ -43,9 +43,10 @@ if __name__ == "__main__":
         name_first=df.at[SPREADSHEET_ROW, df.columns[0]],
         name_middle=df.at[SPREADSHEET_ROW, df.columns[1]],
         name_last=df.at[SPREADSHEET_ROW, df.columns[2]],
-        gender=df.at[SPREADSHEET_ROW, df.columns[3]],
-        age=df.at[SPREADSHEET_ROW, df.columns[4]],
-        birthday=df.at[SPREADSHEET_ROW, df.columns[5]],
+        gender=df.at[SPREADSHEET_ROW, df.columns[4]],
+        grade=df.at[SPREADSHEET_ROW, df.columns[5]],
+        age=df.at[SPREADSHEET_ROW, df.columns[6]],
+        birthday=df.at[SPREADSHEET_ROW, df.columns[7]],
     )
 
     # Store the data from the spreadsheet in a dictionary.
@@ -59,17 +60,30 @@ if __name__ == "__main__":
         }
 
     # Iterate over the paragraphs in the template.
+    print("Reading paragraphs...")
     for paragraph in document.paragraphs:
-        for placeholder, replacement in data.items():
-            # print(placeholder, replacement)
-            paragraph.text = re.sub(
-                placeholder,
-                str(replacement),
-                paragraph.text,
-            )
+        for run in paragraph.runs:
+            for placeholder, replacement in data.items():
+                run.text = re.sub(
+                    placeholder,
+                    str(replacement),
+                    run.text,
+                )
 
     # Iterate over the tables in the template.
-    pass
+    print("Reading tables...")
+    for table in document.tables:
+        for column in table.columns:
+            for cell in column.cells:
+                if PLACEHOLDER_PREFIX in cell.text or PLACEHOLDER_SUFFIX in cell.text:
+                    for placeholder, replacement in data.items():
+                        for paragraph in cell.paragraphs:
+                            for run in paragraph.runs:
+                                cell.text = re.sub(
+                                    placeholder,
+                                    str(replacement),
+                                    cell.text,
+                                )
     
     # Save the modified template as a new file.
     document.save(FILENAME_FINAL)

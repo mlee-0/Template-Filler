@@ -1,13 +1,14 @@
 from datetime import date
 from enum import Enum
 
+from helper import ordinal_number
+
 class Gender(Enum):
     MALE = "male"
     FEMALE = "female"
-    OTHER = "other"
 
 class Student:
-    def __init__(self, name_first, name_middle, name_last, gender, age, birthday):
+    def __init__(self, name_first, name_middle, name_last, gender, grade, age, birthday):
         self.name_first = name_first
         self.name_middle = name_middle
         self.name_last = name_last
@@ -30,5 +31,7 @@ class Student:
             self.pronoun_possessive_dependent, self.pronoun_possessive_independent = "their", "theirs"
             self.pronoun_reflexive = "themself"
         
+        self.grade = grade
+        self.grade_ordinal = ordinal_number(self.grade)
         self.age = age
         self.birthday = birthday
