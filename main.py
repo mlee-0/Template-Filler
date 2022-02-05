@@ -5,31 +5,21 @@ from docx import Document
 import pandas as pd
 
 from student import Student
+from settings import Settings
 
 
-FILENAME_TEMPLATE = "template.docx"
-FILENAME_FINAL = "report.docx"
-FILENAME_DATA = "data.xlsx"
+def main(settings: Settings):
+    PLACEHOLDER_PREFIX = "«"
+    PLACEHOLDER_SUFFIX = "»"
+    # List of apostrophe characters to search for. The first character in this list will be used in text replacements.
+    APOSTROPHES = ["’", "'"]
 
-# The row in the spreadsheet to use. 0 is the row immediately below the header row.
-SPREADSHEET_ROW = 0
-
-PLACEHOLDER_PREFIX = "«"
-PLACEHOLDER_SUFFIX = "»"
-# List of apostrophe characters to search for. The first character in this list will be used in text replacements.
-APOSTROPHES = ["’", "'"]
-
-# Highlight filled in text for debugging.
-highlight_filled_text = True
-
-
-if __name__ == "__main__":
     # Open the template.
-    document = Document(FILENAME_TEMPLATE)
+    document = Document(settings.filename_template)
 
     # Open the spreadsheet.
     df = pd.read_excel(
-        FILENAME_DATA,
+        settings.filename_data,
         sheet_name=0,  # Get first sheet only
         header=0,  # Get labels from first row
     )
@@ -40,17 +30,24 @@ if __name__ == "__main__":
     
     # Store information in a Student object.
     student = Student(
-        name_first=df.at[SPREADSHEET_ROW, df.columns[0]],
-        name_middle=df.at[SPREADSHEET_ROW, df.columns[1]],
-        name_last=df.at[SPREADSHEET_ROW, df.columns[2]],
-        gender=df.at[SPREADSHEET_ROW, df.columns[4]],
-        grade=df.at[SPREADSHEET_ROW, df.columns[5]],
-        age=df.at[SPREADSHEET_ROW, df.columns[6]],
-        birthday=df.at[SPREADSHEET_ROW, df.columns[7]],
+        name_first=df.at[settings.spreadsheet_row, df.columns[0]],
+        name_middle=df.at[settings.spreadsheet_row, df.columns[1]],
+        name_last=df.at[settings.spreadsheet_row, df.columns[2]],
+        gender=df.at[settings.spreadsheet_row, df.columns[4]],
+        grade=df.at[settings.spreadsheet_row, df.columns[5]],
+        age=df.at[settings.spreadsheet_row, df.columns[6]],
+        birthday=df.at[settings.spreadsheet_row, df.columns[7]],
     )
 
     # Store the data from the spreadsheet in a dictionary.
-    data = {label: df.at[SPREADSHEET_ROW, label] for label in df.columns}
+    data = {label: df.at[settings.spreadsheet_row, label] for label in df.columns}
+    # Insert pronouns.
+    data[f"{PLACEHOLDER_PREFIX}he/she{PLACEHOLDER_SUFFIX}"] = student.pronoun_subject
+    data[f"{PLACEHOLDER_PREFIX}him/her{PLACEHOLDER_SUFFIX}"] = student.pronoun_object
+    data[f"{PLACEHOLDER_PREFIX}his/her{PLACEHOLDER_SUFFIX}"] = student.pronoun_possessive_dependent
+    data[f"{PLACEHOLDER_PREFIX}his/hers{PLACEHOLDER_SUFFIX}"] = student.pronoun_possessive_independent
+    data[f"{PLACEHOLDER_PREFIX}himself/herself{PLACEHOLDER_SUFFIX}"] = student.pronoun_reflexive
+
     # Search for instances of 's following the student's name and omit the "s" if the first name ends with "s".
     if student.name_first[-1].lower() == "s":
         # Insert this item at the beginning so that instances of 's are searched before searching for instances of first name without 's.
@@ -86,4 +83,9 @@ if __name__ == "__main__":
                                 )
     
     # Save the modified template as a new file.
-    document.save(FILENAME_FINAL)
+    document.save(settings.filename_final)
+    print(f"Wrote {settings.filename_final}")
+
+if __name__ == "__main__":
+    settings = Settings()
+    main(settings)

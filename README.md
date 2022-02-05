@@ -1,5 +1,5 @@
 # Template Completer
-A Python script that fills in fields in a Word document using data in an Excel spreadsheet.
+A GUI program that fills in fields in a Word document using data in an Excel spreadsheet.
 
 ## Features
 * Automatically omits the *s* in instances of *'s* if preceded by a name that ends in *s*.
@@ -11,3 +11,4 @@ Enter `pip install requirements.txt` in the console to automatically download de
 * python-docx
 * pandas
 * openpyxl
+* PyQt5
