@@ -8,6 +8,18 @@ from student import Student
 from settings import Settings
 
 
+def replace_text(placeholder: str, replacement: str, string: str, capitalize_start=False):
+    replacement = str(replacement)
+    # Find instances in which the replacement should be capitalized.
+    if replacement[0].islower():
+        # Search for instances of the placeholder at the beginning of sentences.
+        string = re.sub(f"(?<=[\.\?!]\s){placeholder}", replacement.capitalize(), string, flags=re.IGNORECASE)
+        # Search for an instance of the placeholder at the beginning of the entire string that is not preceded by whitespace.
+        if capitalize_start:
+            string = re.sub(f"^{placeholder}", replacement.capitalize(), string, flags=re.IGNORECASE)
+    string = re.sub(placeholder, replacement, string, flags=re.IGNORECASE)
+    return string
+
 def main(settings: Settings):
     PLACEHOLDER_PREFIX = "«"
     PLACEHOLDER_SUFFIX = "»"
@@ -42,11 +54,11 @@ def main(settings: Settings):
     # Store the data from the spreadsheet in a dictionary.
     data = {label: df.at[settings.spreadsheet_row, label] for label in df.columns}
     # Insert pronouns.
-    data[f"{PLACEHOLDER_PREFIX}he/she{PLACEHOLDER_SUFFIX}"] = student.pronoun_subject
-    data[f"{PLACEHOLDER_PREFIX}him/her{PLACEHOLDER_SUFFIX}"] = student.pronoun_object
-    data[f"{PLACEHOLDER_PREFIX}his/her{PLACEHOLDER_SUFFIX}"] = student.pronoun_possessive_dependent
-    data[f"{PLACEHOLDER_PREFIX}his/hers{PLACEHOLDER_SUFFIX}"] = student.pronoun_possessive_independent
-    data[f"{PLACEHOLDER_PREFIX}himself/herself{PLACEHOLDER_SUFFIX}"] = student.pronoun_reflexive
+    data[f"{PLACEHOLDER_PREFIX}he_she{PLACEHOLDER_SUFFIX}"] = student.pronoun_subject
+    data[f"{PLACEHOLDER_PREFIX}him_her{PLACEHOLDER_SUFFIX}"] = student.pronoun_object
+    data[f"{PLACEHOLDER_PREFIX}his_her{PLACEHOLDER_SUFFIX}"] = student.pronoun_possessive_dependent
+    data[f"{PLACEHOLDER_PREFIX}his_hers{PLACEHOLDER_SUFFIX}"] = student.pronoun_possessive_independent
+    data[f"{PLACEHOLDER_PREFIX}himself_herself{PLACEHOLDER_SUFFIX}"] = student.pronoun_reflexive
 
     # Search for instances of 's following the student's name and omit the "s" if the first name ends with "s".
     if student.name_first[-1].lower() == "s":
@@ -61,11 +73,7 @@ def main(settings: Settings):
     for paragraph in document.paragraphs:
         for run in paragraph.runs:
             for placeholder, replacement in data.items():
-                run.text = re.sub(
-                    placeholder,
-                    str(replacement),
-                    run.text,
-                )
+                run.text = replace_text(placeholder, replacement, run.text)
 
     # Iterate over the tables in the template.
     print("Reading tables...")
@@ -76,11 +84,7 @@ def main(settings: Settings):
                     for placeholder, replacement in data.items():
                         for paragraph in cell.paragraphs:
                             for run in paragraph.runs:
-                                cell.text = re.sub(
-                                    placeholder,
-                                    str(replacement),
-                                    cell.text,
-                                )
+                                cell.text = replace_text(placeholder, replacement, cell.text)
     
     # Save the modified template as a new file.
     document.save(settings.filename_final)

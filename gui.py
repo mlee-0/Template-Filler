@@ -21,11 +21,11 @@ class MainWindow(QWidget):
         layout.addWidget(label_template, 0, 0)
         layout.addWidget(text_template, 0, 1)
 
-        label_data = QLabel("Data File:")
-        text_data = QLineEdit("data.xlsx")
-        text_data.textEdited.connect(self.on_text_data_changed)
-        layout.addWidget(label_data, 1, 0)
-        layout.addWidget(text_data, 1, 1)
+        label_spreadsheet = QLabel("Spreadsheet File:")
+        text_spreadsheet = QLineEdit("data.xlsx")
+        text_spreadsheet.textEdited.connect(self.on_text_spreadsheet_changed)
+        layout.addWidget(label_spreadsheet, 1, 0)
+        layout.addWidget(text_spreadsheet, 1, 1)
 
         label_row = QLabel("Row to Use:")
         text_row = QSpinBox()
@@ -55,7 +55,7 @@ class MainWindow(QWidget):
     def on_text_template_changed(self):
         self.settings.filename_template = self.sender().text()
     
-    def on_text_data_changed(self):
+    def on_text_spreadsheet_changed(self):
         self.settings.filename_data = self.sender().text()
     
     def on_text_row_changed(self):
