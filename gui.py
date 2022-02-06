@@ -56,7 +56,7 @@ class MainWindow(QWidget):
         self.settings.filename_template = self.sender().text()
     
     def on_text_spreadsheet_changed(self):
-        self.settings.filename_data = self.sender().text()
+        self.settings.filename_spreadsheet = self.sender().text()
     
     def on_text_row_changed(self):
         self.settings.spreadsheet_row = int(self.sender().text())

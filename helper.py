@@ -8,3 +8,7 @@ def ordinal_number(integer):
 
 def ordinal_word(integer):
     pass
+
+# Return True if no keys in the dictionary contain any capital letters.
+def are_keys_lowercase(dictionary):
+    return all(key.islower() for key in dictionary)
