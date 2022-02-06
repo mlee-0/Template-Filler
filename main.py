@@ -1,5 +1,4 @@
 import os
-import re
 
 from docx import Document
 import pandas as pd
@@ -8,13 +7,6 @@ from helper import *
 from student import Student
 from settings import Settings
 
-
-def replace_text(placeholder: str, replacement: str, string: str):
-    # Find instances in which the replacement text should be inserted as is.
-    string = re.sub(placeholder, replacement, string)
-    # Find instances in which the replacement text should be capitalized.
-    string = re.sub(placeholder, replacement.capitalize(), string, flags=re.IGNORECASE)
-    return string
 
 def main(settings: Settings):
     PLACEHOLDER_PREFIX = "«"
@@ -82,7 +74,7 @@ def main(settings: Settings):
                     for placeholder, replacement in data.items():
                         for paragraph in cell.paragraphs:
                             for run in paragraph.runs:
-                                cell.text = replace_text(placeholder, replacement, cell.text)
+                                run.text = replace_text(placeholder, replacement, run.text)
     
     # Save the modified template as a new file.
     document.save(settings.filename_final)
