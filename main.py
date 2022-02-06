@@ -3,12 +3,17 @@ from queue import Queue
 import re
 
 from docx import Document
+import numpy as np
 import pandas as pd
 
 from helper import *
 from student import Student
 from settings import Settings
 
+
+VERSION_MAJOR = 1
+VERSION_MINOR = 0
+VERSION_PATCH = 0
 
 MESSAGE_START_PARAGRAPHS = "Reading paragraphs..."
 MESSAGE_START_TABLES = "Reading tables..."
@@ -49,8 +54,10 @@ def main(settings: Settings, queue : Queue = None):
     df = df.add_suffix(settings.placeholder_suffix)
     # Replace any spaces in column headers with underscores to match the text in the template.
     df = df.rename(columns=lambda string: string.replace(" ", "_"))
+    # Replace empty cells with None.
+    df = df.where(pd.notnull(df), None)
     
-    # Store information in a Student object.
+    # Store information in a Student object to infer data for blank cells.
     student = Student(
         name_first=df.at[settings.spreadsheet_row, df.columns[0]],
         name_middle=df.at[settings.spreadsheet_row, df.columns[1]],
@@ -61,9 +68,14 @@ def main(settings: Settings, queue : Queue = None):
         birthday=df.at[settings.spreadsheet_row, df.columns[7]],
     )
 
-    # Store the data from the spreadsheet in a dictionary.
-    data = {label: str(df.at[settings.spreadsheet_row, label]) for label in df.columns}
-    # Insert pronouns.
+    # Store the data from the spreadsheet in a dictionary, replacing None with empty strings.
+    data = {
+        label: str(df.at[settings.spreadsheet_row, label]) if df.at[settings.spreadsheet_row, label] is not None else ''
+        for label in df.columns
+    }
+    
+    # Insert data inferred from entered data.
+    data[f"{settings.placeholder_prefix}full_name{settings.placeholder_suffix}"] = student.name_full
     data[f"{settings.placeholder_prefix}he_she{settings.placeholder_suffix}"] = student.pronoun_subject
     data[f"{settings.placeholder_prefix}him_her{settings.placeholder_suffix}"] = student.pronoun_object
     data[f"{settings.placeholder_prefix}his_her{settings.placeholder_suffix}"] = student.pronoun_possessive_dependent

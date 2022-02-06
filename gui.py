@@ -10,10 +10,6 @@ import main
 from settings import Settings
 
 
-# class MainThread(threading.Thread):
-#     def run(self):
-#         self.target(*self.args, **self.kwargs)
-
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
