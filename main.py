@@ -1,4 +1,5 @@
 import os
+import re
 
 from docx import Document
 import pandas as pd
@@ -8,9 +9,25 @@ from student import Student
 from settings import Settings
 
 
+def replace_in_paragraph(paragraph, dictionary, settings):
+    if is_placeholder_in_text(paragraph.text, settings.placeholder_prefix, settings.placeholder_suffix):
+        for run in paragraph.runs:
+            for placeholder, replacement in dictionary.items():
+                run.text = replace_text(placeholder, replacement, run.text)
+    return paragraph
+
+def replace_in_table(table, dictionary, settings, recursive_calls=1):
+    for column in table.columns:
+        for cell in column.cells:
+            if cell.tables and recursive_calls > 0:
+                for nested_table in cell.tables:
+                    nested_table = replace_in_table(nested_table, dictionary, settings, recursive_calls-1)
+            else:
+                for paragraph in cell.paragraphs:
+                    paragraph = replace_in_paragraph(paragraph, dictionary, settings)
+    return table
+
 def main(settings: Settings):
-    PLACEHOLDER_PREFIX = "«"
-    PLACEHOLDER_SUFFIX = "»"
     # List of apostrophe characters to search for. The first character in this list will be used in text replacements.
     APOSTROPHES = ["’", "'"]
 
@@ -23,8 +40,8 @@ def main(settings: Settings):
         sheet_name=0,  # Get first sheet only
         header=0,  # Get labels from first row
     )
-    df = df.add_prefix(PLACEHOLDER_PREFIX)
-    df = df.add_suffix(PLACEHOLDER_SUFFIX)
+    df = df.add_prefix(settings.placeholder_prefix)
+    df = df.add_suffix(settings.placeholder_suffix)
     # Replace any spaces in column headers with underscores to match the text in the template.
     df = df.rename(columns=lambda string: string.replace(" ", "_"))
     
@@ -42,11 +59,11 @@ def main(settings: Settings):
     # Store the data from the spreadsheet in a dictionary.
     data = {label: str(df.at[settings.spreadsheet_row, label]) for label in df.columns}
     # Insert pronouns.
-    data[f"{PLACEHOLDER_PREFIX}he_she{PLACEHOLDER_SUFFIX}"] = student.pronoun_subject
-    data[f"{PLACEHOLDER_PREFIX}him_her{PLACEHOLDER_SUFFIX}"] = student.pronoun_object
-    data[f"{PLACEHOLDER_PREFIX}his_her{PLACEHOLDER_SUFFIX}"] = student.pronoun_possessive_dependent
-    data[f"{PLACEHOLDER_PREFIX}his_hers{PLACEHOLDER_SUFFIX}"] = student.pronoun_possessive_independent
-    data[f"{PLACEHOLDER_PREFIX}himself_herself{PLACEHOLDER_SUFFIX}"] = student.pronoun_reflexive
+    data[f"{settings.placeholder_prefix}he_she{settings.placeholder_suffix}"] = student.pronoun_subject
+    data[f"{settings.placeholder_prefix}him_her{settings.placeholder_suffix}"] = student.pronoun_object
+    data[f"{settings.placeholder_prefix}his_her{settings.placeholder_suffix}"] = student.pronoun_possessive_dependent
+    data[f"{settings.placeholder_prefix}his_hers{settings.placeholder_suffix}"] = student.pronoun_possessive_independent
+    data[f"{settings.placeholder_prefix}himself_herself{settings.placeholder_suffix}"] = student.pronoun_reflexive
     # Check that no header label contains upper case letters.
     assert are_keys_lowercase(data), f"Make sure all headers in {settings.filename_spreadsheet} are lower case and that there are no empty columns."
 
@@ -61,20 +78,12 @@ def main(settings: Settings):
     # Iterate over the paragraphs in the template.
     print("Reading paragraphs...")
     for paragraph in document.paragraphs:
-        for run in paragraph.runs:
-            for placeholder, replacement in data.items():
-                run.text = replace_text(placeholder, replacement, run.text)
+        paragraph = replace_in_paragraph(paragraph, data, settings)
 
     # Iterate over the tables in the template.
     print("Reading tables...")
     for table in document.tables:
-        for column in table.columns:
-            for cell in column.cells:
-                if PLACEHOLDER_PREFIX in cell.text or PLACEHOLDER_SUFFIX in cell.text:
-                    for placeholder, replacement in data.items():
-                        for paragraph in cell.paragraphs:
-                            for run in paragraph.runs:
-                                run.text = replace_text(placeholder, replacement, run.text)
+        table = replace_in_table(table, data, settings, settings.nested_tables)
     
     # Save the modified template as a new file.
     document.save(settings.filename_final)

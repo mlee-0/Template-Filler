@@ -9,6 +9,10 @@ def replace_text(placeholder: str, replacement: str, string: str):
     string = re.sub(placeholder, replacement.capitalize(), string, flags=re.IGNORECASE)
     return string
 
+# Return True if at least one placeholder is found in the string.
+def is_placeholder_in_text(string, placeholder_prefix, placeholder_suffix):
+    return re.search(f"{placeholder_prefix}.*{placeholder_suffix}", string) is not None
+
 # Return a string containing an ordinal number as a digit and corresponding suffix (1st, 2nd, 3rd).
 def ordinal_number(integer):
     suffix = "th"
