@@ -1,4 +1,5 @@
 import os
+from queue import Queue
 import re
 
 from docx import Document
@@ -8,6 +9,10 @@ from helper import *
 from student import Student
 from settings import Settings
 
+
+MESSAGE_START_PARAGRAPHS = "Reading paragraphs..."
+MESSAGE_START_TABLES = "Reading tables..."
+MESSAGE_START_HEADERS_FOOTERS = "Reading headers and footers..."
 
 def replace_in_paragraph(paragraph, dictionary, settings):
     if is_placeholder_in_text(paragraph.text, settings.placeholder_prefix, settings.placeholder_suffix):
@@ -27,7 +32,7 @@ def replace_in_table(table, dictionary, settings, recursive_calls=1):
                     paragraph = replace_in_paragraph(paragraph, dictionary, settings)
     return table
 
-def main(settings: Settings):
+def main(settings: Settings, queue : Queue = None):
     # List of apostrophe characters to search for. The first character in this list will be used in text replacements.
     APOSTROPHES = ["’", "'"]
 
@@ -76,18 +81,31 @@ def main(settings: Settings):
         }
 
     # Iterate over the paragraphs in the template.
-    print("Reading paragraphs...")
-    for paragraph in document.paragraphs:
+    print(MESSAGE_START_PARAGRAPHS)
+    if queue:
+        queue.put(MESSAGE_START_PARAGRAPHS)
+    paragraph_count = len(document.paragraphs)
+    for i, paragraph in enumerate(document.paragraphs, 1):
         paragraph = replace_in_paragraph(paragraph, data, settings)
+        if queue:
+            queue.put(round(100 * i / paragraph_count))
 
     # Iterate over the tables in the template.
-    print("Reading tables...")
-    for table in document.tables:
+    print(MESSAGE_START_TABLES)
+    if queue:
+        queue.put(MESSAGE_START_TABLES)
+    table_count = len(document.tables)
+    for i, table in enumerate(document.tables, 1):
         table = replace_in_table(table, data, settings, settings.nested_tables)
+        if queue:
+            queue.put(round(100 * i / table_count))
     
     # Save the modified template as a new file.
     document.save(settings.filename_final)
-    print(f"Wrote {settings.filename_final}.")
+    message_done = f"Wrote {settings.filename_final}."
+    print(message_done)
+    if queue:
+        queue.put(message_done)
 
 if __name__ == "__main__":
     settings = Settings()
