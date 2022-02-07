@@ -1,4 +1,4 @@
-# Template Completer
+# Template Filler
 A GUI program that fills in merge fields in a Microsoft Word document using data in a Microsoft Excel spreadsheet.
 
 ## Usage
@@ -21,8 +21,8 @@ A GUI program that fills in merge fields in a Microsoft Word document using data
 ## Features
 * ~~Automatically omits the *s* in instances of *'s* if preceded by a name that ends in *s*.~~
 
-## Requirements
-Written in Python 3.9 on Windows.
+## Dependencies
+Written in Python 3.9.
 
 Enter `pip install requirements.txt` in the console to automatically download dependencies.
 * python-docx

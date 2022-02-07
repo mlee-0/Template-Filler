@@ -1,6 +1,11 @@
 from dataclasses import dataclass
 
 
+PROGRAM_NAME = "Template Filler"
+VERSION_MAJOR = 1
+VERSION_MINOR = 0
+VERSION_PATCH = 0
+
 # Characters that surround placeholders.
 PLACEHOLDER_PREFIX : str = "«"
 PLACEHOLDER_SUFFIX : str = "»"

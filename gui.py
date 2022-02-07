@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QGridLayout,
 from PyQt5.QtCore import Qt, QTimer
 
 import main
-from settings import Settings
+from settings import *
 
 
 class MainWindow(QMainWindow):
@@ -121,6 +121,6 @@ class MainWindow(QMainWindow):
 if __name__ == "__main__":
     application = QApplication(sys.argv)
     window = MainWindow()
-    window.setWindowTitle("Template Completer")
+    window.setWindowTitle(PROGRAM_NAME)
     window.show()
     sys.exit(application.exec_())
