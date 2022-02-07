@@ -22,34 +22,22 @@ def format_as_placeholder(string: str) -> str:
 
 def consolidate_runs(paragraph):
     """Return a paragraph that combines runs that share certain formatting."""
-    # Dictionary used to assign runs' attributes to runs' style attributes.
-    # font_to_style = {
-    #     run.style.font.highlight_color: run.font.highlight_color,
-    #     run.style.font.italic: run.italic,
-    #     run.style.font.color.rgb: run.font.color.rgb,
-    #     run.style.font.bold: run.bold,
-    #     run.style.font.underline: run.underline,
-    # }
-    # To improve performance when comparing the formatting of two runs, order these attributes from most used to least used.
+    # Returns the formatting attributes used to compare two runs. To improve performance when comparing, order these attributes from most used to least used.
     formatting = lambda run: (run.font.highlight_color, run.italic, run.font.color.rgb, run.bold, run.underline)
 
-    runs_consolidated = []
-    for run in paragraph.runs:
-        run.style.font.highlight_color = run.font.highlight_color
-        if len(runs_consolidated) == 0 or formatting(runs_consolidated[-1]) != formatting(run):
-            runs_consolidated.append(run)
+    # Combine adjacent runs that share the same formatting into a single run.
+    for i, run in enumerate(paragraph.runs):
+        # Mark this run as the run to add text to.
+        if i == 0 or formatting(run) != formatting_consolidated:
+            # The index of the run to add text to.
+            run_consolidated = i
+            # The formatting of the run to add text to.
+            formatting_consolidated = formatting(run)
+        # Move this run's text to a previous one.
         else:
-            runs_consolidated[-1].text = f"{runs_consolidated[-1].text}{run.text}"
-    
-    paragraph.clear()
-    for run in runs_consolidated:
-        run.style.font.highlight_color = run.font.highlight_color
-        run.style.font.italic = run.italic
-        run.style.font.color.rgb = run.font.color.rgb
-        run.style.font.bold = run.bold
-        run.style.font.underline = run.underline
+            paragraph.runs[run_consolidated].text += run.text
+            run.clear()
 
-        paragraph.add_run(run.text, run.style)
     return paragraph
 
 def ordinal_number(integer: int) -> str:
