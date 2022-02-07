@@ -16,7 +16,7 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self.settings = Settings()
-        detected_template = detect_file("*.docx")
+        detected_template = detect_file("*.docx", "template")
         if detected_template:
             self.settings.filename_template = detected_template
         detected_spreadsheet = detect_file("*.xlsx")

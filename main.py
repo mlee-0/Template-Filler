@@ -16,6 +16,8 @@ MESSAGE_START_PARAGRAPHS = "Reading paragraphs..."
 MESSAGE_START_TABLES = "Reading tables..."
 
 def replace_in_paragraph(paragraph, dictionary):
+    # Eliminate placeholders that are separated into multiple runs.
+    paragraph = consolidate_runs(paragraph)
     if is_placeholder_in_text(paragraph.text):
         for run in paragraph.runs:
             for placeholder, replacement in dictionary.items():
