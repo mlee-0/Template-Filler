@@ -104,7 +104,6 @@ def main(settings: Settings, queue : Queue = None):
             if queue:
                 queue.put(round(100 * i / footer_paragraph_count))
 
-
     # Iterate over the paragraphs in the template.
     print(MESSAGE_START_PARAGRAPHS)
     if queue:

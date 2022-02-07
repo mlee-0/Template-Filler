@@ -6,6 +6,7 @@ import threading
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QGridLayout, QHBoxLayout, QWidget, QPushButton, QLabel, QLineEdit, QSpinBox, QProgressBar
 from PyQt5.QtCore import Qt, QTimer
 
+from helper import *
 import main
 from settings import *
 
@@ -15,6 +16,12 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         self.settings = Settings()
+        detected_template = detect_file("*.docx")
+        if detected_template:
+            self.settings.filename_template = detected_template
+        detected_spreadsheet = detect_file("*.xlsx")
+        if detected_spreadsheet:
+            self.settings.filename_spreadsheet = detected_spreadsheet
 
         self.queue = Queue()
 
