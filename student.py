@@ -20,7 +20,7 @@ class Student:
         self.initial_middle = self.name_middle[0].upper() if self.name_middle else ''
         self.initial_last = self.name_last[0].upper() if self.name_last else ''
 
-        self.gender = Gender(gender.strip().lower())
+        self.gender = Gender(gender.lower())
         if self.gender == Gender.MALE:
             self.pronoun_subject, self.pronoun_object = "he", "him"
             self.pronoun_possessive_dependent, self.pronoun_possessive_independent = "his", "his"

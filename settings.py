@@ -1,5 +1,10 @@
 from dataclasses import dataclass
 
+
+# Characters that surround placeholders.
+PLACEHOLDER_PREFIX : str = "«"
+PLACEHOLDER_SUFFIX : str = "»"
+
 @dataclass
 class Settings:
     filename_template : str = "template.docx"
@@ -8,10 +13,6 @@ class Settings:
     
     # The row in the spreadsheet to use. 0 is the row immediately below the header row.
     spreadsheet_row : int = 0
-
-    # Characters that surround placeholders.
-    placeholder_prefix : str = "«"
-    placeholder_suffix : str = "»"
 
     # Number of tables within tables to search for.
     nested_tables : int = 1

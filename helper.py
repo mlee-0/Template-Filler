@@ -1,5 +1,7 @@
 import re
 
+from settings import PLACEHOLDER_PREFIX, PLACEHOLDER_SUFFIX
+
 
 # Return a string with instances of placeholder replaced by replacement.
 def replace_text(placeholder: str, replacement: str, string: str):
@@ -10,8 +12,12 @@ def replace_text(placeholder: str, replacement: str, string: str):
     return string
 
 # Return True if at least one placeholder is found in the string.
-def is_placeholder_in_text(string, placeholder_prefix, placeholder_suffix):
-    return re.search(f"{placeholder_prefix}.*{placeholder_suffix}", string) is not None
+def is_placeholder_in_text(string):
+    return re.search(f"{PLACEHOLDER_PREFIX}.*{PLACEHOLDER_SUFFIX}", string) is not None
+
+# Return the string with placeholder characters surrounding it.
+def format_as_placeholder(string):
+    return f"{PLACEHOLDER_PREFIX}{string}{PLACEHOLDER_SUFFIX}"
 
 # Return a string containing an ordinal number as a digit and corresponding suffix (1st, 2nd, 3rd).
 def ordinal_number(integer):

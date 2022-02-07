@@ -93,6 +93,10 @@ class MainWindow(QMainWindow):
         self.settings.filename_final = self.sender().text()
     
     def on_button_run_click(self):
+        if self.settings.filename_final == self.settings.filename_template:
+            self.label_status.setText(f"Output file name {self.settings.filename_final} will overwrite the template file.")
+            return
+        
         self.button_run.setEnabled(False)
         self.thread = threading.Thread(
             target=main.main,
