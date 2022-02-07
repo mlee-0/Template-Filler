@@ -11,13 +11,9 @@ from student import Student
 from settings import Settings, PLACEHOLDER_PREFIX, PLACEHOLDER_SUFFIX
 
 
-VERSION_MAJOR = 1
-VERSION_MINOR = 0
-VERSION_PATCH = 0
-
+MESSAGE_START_HEADERS_FOOTERS = "Reading headers and footers..."
 MESSAGE_START_PARAGRAPHS = "Reading paragraphs..."
 MESSAGE_START_TABLES = "Reading tables..."
-MESSAGE_START_HEADERS_FOOTERS = "Reading headers and footers..."
 
 def replace_in_paragraph(paragraph, dictionary):
     if is_placeholder_in_text(paragraph.text):
@@ -91,6 +87,23 @@ def main(settings: Settings, queue : Queue = None):
             **{f"{df.columns[0]}({'|'.join(APOSTROPHES)})s": f"{student.name_first}{APOSTROPHES[0]}"},
             **data,
         }
+
+    # Iterate over the sections' headers and footers in the template.
+    print(MESSAGE_START_HEADERS_FOOTERS)
+    if queue:
+        queue.put(MESSAGE_START_HEADERS_FOOTERS)
+    for section in document.sections:
+        header_paragraph_count = len(section.header.paragraphs)
+        for i, paragraph in enumerate(section.header.paragraphs):
+            paragraph = replace_in_paragraph(paragraph, data)
+            if queue:
+                queue.put(round(100 * i / header_paragraph_count))
+        footer_paragraph_count = len(section.footer.paragraphs)
+        for i, paragraph in enumerate(section.footer.paragraphs):
+            paragraph = replace_in_paragraph(paragraph, data)
+            if queue:
+                queue.put(round(100 * i / footer_paragraph_count))
+
 
     # Iterate over the paragraphs in the template.
     print(MESSAGE_START_PARAGRAPHS)
