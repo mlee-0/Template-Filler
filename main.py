@@ -67,10 +67,16 @@ def main(settings: Settings, queue : Queue = None):
     )
 
     # Store the data from the spreadsheet in a dictionary, replacing None with empty strings.
-    data = {
-        label: str(df.at[settings.spreadsheet_row, label]) if df.at[settings.spreadsheet_row, label] is not None else ''
-        for label in df.columns
-    }
+    data = {}
+    for label in df.columns:
+        value = df.at[settings.spreadsheet_row, label]
+        if value is not None:
+            if isinstance(value, pd.Timestamp):
+                data[label] = value.strftime(settings.date_format)
+            else:
+                data[label] = str(value)
+        else:
+            data[label] = ''
     
     # Insert data inferred from entered data.
     data[format_as_placeholder("full_name")] = student.name_full

@@ -25,3 +25,5 @@ class Settings:
     ignore_paragraphs : bool = False
     ignore_tables : bool = False
     ignore_headers_footers : bool = False
+
+    date_format = r"%m/%d/%Y"
