@@ -133,8 +133,16 @@ def main(settings: Settings, queue : Queue = None):
             queue.put(round(100 * i / table_count))
     
     # Save the modified template as a new file.
-    document.save(settings.filename_final)
-    message_done = f"Wrote {settings.filename_final}."
+    try:
+        document.save(settings.filename_final)
+    except PermissionError:
+        message_permission_error = f"Could not save {settings.filename_final}."
+        print(message_permission_error)
+        if queue:
+            queue.put(message_permission_error)
+        return
+    
+    message_done = f"Saved {settings.filename_final}."
     print(message_done)
     if queue:
         queue.put(message_done)
