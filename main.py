@@ -1,6 +1,7 @@
 import os
 from queue import Queue
 import re
+from zipfile import ZipFile
 
 from docx import Document
 import numpy as np
@@ -34,6 +35,14 @@ def replace_in_table(table, dictionary, recursive_calls=1):
                 for paragraph in cell.paragraphs:
                     paragraph = replace_in_paragraph(paragraph, dictionary)
     return table
+
+def get_word_from_xml(filename: str) -> str:
+    with ZipFile(filename, "r") as zip_read:
+        xml = zip_read.read("word/document.xml")
+    return xml
+
+def save_xml_to_word(filename):
+    pass
 
 def main(settings: Settings, queue : Queue = None):
     # List of apostrophe characters to search for. The first character in this list will be used in text replacements.
